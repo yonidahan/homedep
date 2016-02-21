@@ -189,7 +189,7 @@ rm(train,test,text)
 #best number of components and shrinkage (regularization parameter)
 #are found using cross-validation in parallel
 
-n_folds<-2
+n_folds<-5
 
 
 #Parallel backend

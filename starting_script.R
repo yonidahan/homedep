@@ -74,12 +74,11 @@ test$cos_descr<-stringdist(test$search_term,test$product_description,
 
 
 #Some search_terms are stopwords (often it's "to")
-#This causes cosine to be Inf (norm=0)
-#We can replace these Inf values with 0
-train$cos_title[train$cos_title==Inf]<-0
-train$cos_descr[train$cos_descr==Inf]<-0
-test$cos_title[test$cos_title==Inf]<-0
-test$cos_descr[test$cos_descr==Inf]<-0
+#We can replace these Inf values with 1
+train$cos_title[train$cos_title==Inf]<-1
+train$cos_descr[train$cos_descr==Inf]<-1
+test$cos_title[test$cos_title==Inf]<-1
+test$cos_descr[test$cos_descr==Inf]<-1
 
 
 #Number of matching words between query and product_title and
@@ -189,7 +188,7 @@ rm(train,test,text)
 #best number of components and shrinkage (regularization parameter)
 #are found using cross-validation in parallel
 
-n_folds<-2
+n_folds<-5
 
 
 #Parallel backend

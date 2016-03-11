@@ -187,7 +187,7 @@ data_hd$match_title<-match_feat[,5]
 data_hd$match_descr<-match_feat[,6]
 data_hd$match_brand<-match_feat[,7]
 
-dist_feat<-select(data_hd,-product_title,
+dist_feat<-select(data_hd,-product_title,-product_uid,
                   -search_term,-product_description,-brand)
 
 help_data$id_data_hd<-data_hd$id#Keep ids in data_hd

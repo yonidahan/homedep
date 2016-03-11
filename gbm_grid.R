@@ -94,6 +94,8 @@ gbm_grid<-function(
                                                                   newdata=as.data.frame(
                                                                           as.matrix(tfidf_test_cv)),
                                                                   n.trees=ntrees)
+                                                preds_cv[preds_cv>3]<-3
+                                                preds_cv[preds_cv<1]<-1
                                                 
                                                 #Get metrics
                                                 rmse_cv<-rmse_cv+rmse(y_test_cv,preds_cv)

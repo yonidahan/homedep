@@ -9,7 +9,6 @@ xgb_grid_tree<-function(
         n_comp,
         eta,
         nrounds,
-        gamma,
         max_depth,
         min_child_weight,
         colsample_bytree){
@@ -25,7 +24,7 @@ xgb_grid_tree<-function(
                                nrounds=nrounds,
                                max_depth=max_depth,
                                min_child_weight=min_child_weight,
-                               colsample_bytree,colsample_bytree)
+                               colsample_bytree=colsample_bytree)
         
         best<-data.frame()
         #Each core does a k-cross-validation task
@@ -91,12 +90,12 @@ xgb_grid_tree<-function(
                                                         eta=eta,
                                                         max_depth=max_depth,
                                                         min_child_weight=min_child_weight,
-                                                        colsample_bytree=colsample_bytree,
-                                                        silent=1)#No running messages
+                                                        colsample_bytree=colsample_bytree)
                                                 
                                                 watchlist<-list(eval=tfidf_train_cv,
                                                                 train=tfidf_train_cv)
                                                 
+                                                set.seed(1308)
                                                 model_cv<-xgb.train(data=tfidf_train_cv,
                                                                     nrounds=nrounds,
                                                                     params=params,
@@ -105,6 +104,8 @@ xgb_grid_tree<-function(
                                                 #Predictions
                                                 preds_cv<-predict(model_cv,
                                                                   newdata=as.matrix(tfidf_test_cv))
+                                                preds_cv[preds_cv>3]<-3
+                                                preds_cv[preds_cv<1]<-1
                                                 
                                                 #Get metrics
                                                 rmse_cv<-rmse_cv+rmse(y_test_cv,preds_cv)
@@ -114,7 +115,7 @@ xgb_grid_tree<-function(
                                                 "rmse"=rmse_cv/n_folds,
                                                 "svd_ncomp"=svd_ncomp,
                                                 "eta"=eta,
-                                                "nrounds"=depth,
+                                                "nrounds"=nrounds,
                                                 "max_depth"=max_depth,
                                                 "min_child_weight"=min_child_weight,
                                                 "colsample_bytree"=colsample_bytree

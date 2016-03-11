@@ -1,5 +1,4 @@
 
-#home_depot2
 #feature extraction
 
 #Libraries
@@ -18,107 +17,191 @@ if(getwd()!=dir){setwd(dir)}
 if(!exists("data_hd")){load("./proc_files/data_hd")}
 if(!exists("help_data")){load("./proc_files/help_data")}
 
-#Create binary variable that indicates if result has a 
-#brand name
-names(data_hd)[names(data_hd)=="name"]<-"brand"
-data_hd$brand[is.na(data_hd$brand)]<-0
-data_hd$brand[data_hd$brand!=0]<-1
-data_hd$brand<-as.numeric(data_hd$brand)
 
 #Similarity/distance features
-#cosine, Jaccard, Jaro-Winkler
-#search_term - product_title
-#search_term - product_description
-data_hd$cos_title<-stringdist(data_hd$search_term,
-                              data_hd$product_title,method="cosine")
-data_hd$cos_descr<-stringdist(data_hd$search_term,
-                              data_hd$product_description,method="cosine")
-data_hd$jac_title<-stringdist(data_hd$search_term,
-                              data_hd$product_title,method="jaccard")
-data_hd$jac_descr<-stringdist(data_hd$search_term,
-                              data_hd$product_description,method="jaccard")
-data_hd$jw_title<-stringdist(data_hd$search_term,
-                              data_hd$product_title,method="jw")
-data_hd$jw_descr<-stringdist(data_hd$search_term,
-                              data_hd$product_description,method="jw")
 
-#Inf entries-->1
-#1 is no similarity
-data_hd$cos_title[data_hd$cos_title==Inf]<-0
-data_hd$cos_descr[data_hd$cos_descr==Inf]<-0
-data_hd$jac_title[data_hd$jac_title==Inf]<-0
-data_hd$jac_descr[data_hd$jac_descr==Inf]<-0
+#Cosine search_term-product_title
+data_hd$cos_title1<-stringdist(data_hd$search_term,data_hd$product_title,
+                               method="cosine",q=1)
+data_hd$cos_title2<-stringdist(data_hd$search_term,data_hd$product_title,
+                               method="cosine",q=2)
+data_hd$cos_title3<-stringdist(data_hd$search_term,data_hd$product_title,
+                               method="cosine",q=3)
+data_hd$cos_title4<-stringdist(data_hd$search_term,data_hd$product_title,
+                               method="cosine",q=4)
+
+data_hd$cos_title1[data_hd$cos_title1==Inf]<-1#when search_term=""
+data_hd$cos_title2[data_hd$cos_title2==Inf]<-1
+data_hd$cos_title3[data_hd$cos_title3==Inf]<-1
+data_hd$cos_title4[data_hd$cos_title4==Inf]<-1
+
+#Cosine search_term-product_description
+data_hd$cos_descr1<-stringdist(data_hd$search_term,data_hd$product_description,
+                               method="cosine",q=1)
+data_hd$cos_descr2<-stringdist(data_hd$search_term,data_hd$product_description,
+                               method="cosine",q=2)
+data_hd$cos_descr3<-stringdist(data_hd$search_term,data_hd$product_description,
+                               method="cosine",q=3)
+data_hd$cos_descr4<-stringdist(data_hd$search_term,data_hd$product_description,
+                               method="cosine",q=4)
+data_hd$cos_descr1[data_hd$cos_descr1==Inf]<-1#when search_term=""
+data_hd$cos_descr2[data_hd$cos_descr2==Inf]<-1
+data_hd$cos_descr3[data_hd$cos_descr3==Inf]<-1
+data_hd$cos_descr4[data_hd$cos_descr4==Inf]<-1
+
+#Cosine search-term-brand
+data_hd$cos_brand1<-stringdist(data_hd$search_term,data_hd$brand,
+                               method="cosine",q=1)
+data_hd$cos_brand2<-stringdist(data_hd$search_term,data_hd$brand,
+                           method="cosine",q=2)
+data_hd$cos_brand3<-stringdist(data_hd$search_term,data_hd$brand,
+                           method="cosine",q=3)
+data_hd$cos_brand4<-stringdist(data_hd$search_term,data_hd$brand,
+                           method="cosine",q=4)
+data_hd$cos_brand1[data_hd$cos_brand1==Inf]<-1
+data_hd$cos_brand2[data_hd$cos_brand2==Inf]<-1
+data_hd$cos_brand3[data_hd$cos_brand3==Inf]<-1
+data_hd$cos_brand4[data_hd$cos_brand4==Inf]<-1
 
 
-#Number of matching characters search_term/product_title,
-#search_term/product_description
-#word counts in search_term,product_title and product_description
-match_length<-function(search_term,product_title,
-                       product_descr){
-        
-        search<-unlist(strsplit(search_term," "))
-        n_search<-length(search)
-        n_title<-length(unlist(strsplit(product_title," ")))
-        n_descr<-length(unlist(strsplit(product_descr," ")))
-        
-        match_title<-0
-        match_descr<-0
-        for(i in 1:n_search){
-                pattern<-paste("(^| )",search[i],"($| )",sep="")
-                match_title<-match_title+grepl(pattern,product_title,
-                                               perl=TRUE,ignore.case=TRUE)
-                match_descr<-match_descr+grepl(pattern,product_descr,
-                                               perl=TRUE,ignore.case=TRUE)
-        }
-        return(c(n_search,n_title,n_descr,match_title,match_descr))
-}
+#Jaccard search_term - product_title
+data_hd$jac_title1<-stringdist(data_hd$search_term,data_hd$product_title,
+                               method="jaccard",q=1)
+data_hd$jac_title2<-stringdist(data_hd$search_term,data_hd$product_title,
+                               method="jaccard",q=2)
+data_hd$jac_title3<-stringdist(data_hd$search_term,data_hd$product_title,
+                               method="jaccard",q=3)
+data_hd$jac_title4<-stringdist(data_hd$search_term,data_hd$product_title,
+                               method="jaccard",q=4)
+
+data_hd$jac_title1[data_hd$jac_title1==Inf]<-1
+data_hd$jac_title2[data_hd$jac_title2==Inf]<-1
+data_hd$jac_title3[data_hd$jac_title3==Inf]<-1
+data_hd$jac_title4[data_hd$jac_title4==Inf]<-1
+
+#Jaccard search_term - product_description
+data_hd$jac_descr1<-stringdist(data_hd$search_term,data_hd$product_description,
+                               method="jaccard",q=1)
+data_hd$jac_descr2<-stringdist(data_hd$search_term,data_hd$product_description,
+                               method="jaccard",q=2)
+data_hd$jac_descr3<-stringdist(data_hd$search_term,data_hd$product_description,
+                               method="jaccard",q=3)
+data_hd$jac_descr4<-stringdist(data_hd$search_term,data_hd$product_description,
+                               method="jaccard",q=4)
+data_hd$jac_descr1[data_hd$jac_descr1==Inf]<-1
+data_hd$jac_descr2[data_hd$jac_descr2==Inf]<-1
+data_hd$jac_descr3[data_hd$jac_descr3==Inf]<-1
+data_hd$jac_descr4[data_hd$jac_descr4==Inf]<-1
+
+#Jaccard search_term - brand
+data_hd$jac_brand1<-stringdist(data_hd$search_term,data_hd$brand,
+                               method="jaccard",q=1)
+data_hd$jac_brand2<-stringdist(data_hd$search_term,data_hd$brand,
+                               method="jaccard",q=2)
+data_hd$jac_brand3<-stringdist(data_hd$search_term,data_hd$brand,
+                               method="jaccard",q=3)
+data_hd$jac_brand4<-stringdist(data_hd$search_term,data_hd$brand,
+                               method="jaccard",q=4)
+data_hd$jac_brand1[data_hd$jac_brand1==Inf]<-1
+data_hd$jac_brand2[data_hd$jac_brand2==Inf]<-1
+data_hd$jac_brand3[data_hd$jac_brand3==Inf]<-1
+data_hd$jac_brand4[data_hd$jac_brand4==Inf]<-1
+
+#Jaro-Wrinkler search_term - product_title
+data_hd$jw_title<-stringdist(data_hd$search_term,data_hd$product_title,
+                             method="jw")
+
+#Jaro-Wrinkler search_term - product_description
+data_hd$jw_descr<-stringdist(data_hd$search_term,data_hd$product_description,
+                             method="jw")
+
+#Jaro-Wrinkler search_term - brand
+data_hd$jw_brand<-stringdist(data_hd$search_term,data_hd$brand,
+                             method="jw")
+
+#OSA search_term - product_title
+data_hd$osa_title<-stringdist(data_hd$search_term,data_hd$product_title,
+                              method="osa")
+
+#OSA search_term - product_description
+data_hd$osa_descr<-stringdist(data_hd$search_term,data_hd$product_description,
+                              method="osa")
+
+#OSA search_term - brand
+data_hd$osa_brand<-stringdist(data_hd$search_term,data_hd$brand,
+                              method="osa")
+
+
+#Full Damerau Levenshtein distance search_term - product_title
+data_hd$dl_title<-stringdist(data_hd$search_term,data_hd$product_title,
+                             method="dl")
+
+#Full Damerau Levenshtein distance search_term - product_description
+data_hd$dl_descr<-stringdist(data_hd$search_term,data_hd$product_description,
+                             method="dl")
+
+#Full Damerau Levenshtein distance search_term - brand
+data_hd$dl_brand<-stringdist(data_hd$search_term,data_hd$brand,
+                             method="dl")
+
+#Levenshtein distance search_term - product_title
+data_hd$lv_title<-stringdist(data_hd$search_term,data_hd$product_title,
+                             method="lv")
+
+#Levenshtein distance search_term - product_description
+data_hd$dl_descr<-stringdist(data_hd$search_term,data_hd$product_description,
+                             method="dl")
+
+#Levenshtein distance search_term - brand
+data_hd$dl_brand<-stringdist(data_hd$search_term,data_hd$brand,
+                             method="dl")
+
+#Longest common substring distance search_term - product_title
+data_hd$lcs_title<-stringdist(data_hd$search_term,data_hd$product_title,
+                             method="lcs")
+
+#Longest common substring distance search_term - product_description
+data_hd$lcs_title<-stringdist(data_hd$search_term,data_hd$product_description,
+                              method="lcs")
+
+#Longest common substring distance search_term - brand
+data_hd$lcs_rand<-stringdist(data_hd$search_term,data_hd$brand,
+                              method="lcs")
+
+
+
+#Matching and counting features
+#Matching: same as before
+#number of words in search_term, product_title, product_description, brand
+source("./match_feat.R")
 match_feat<-as.data.frame(t(mapply(match_length,
-                                         data_hd$search_term,
-                                         data_hd$product_title,
-                                         data_hd$product_description)))
+                                   data_hd$search_term,
+                                   data_hd$product_title,
+                                   data_hd$product_description,
+                                   data_hd$brand)))
 data_hd$n_search<-match_feat[,1]
 data_hd$n_title<-match_feat[,2]
 data_hd$n_descr<-match_feat[,3]
-data_hd$match_title<-match_feat[,4]
-data_hd$match_descr<-match_feat[,5]
+data_hd$n_brand<-match_feat[,4]
+data_hd$match_title<-match_feat[,5]
+data_hd$match_descr<-match_feat[,6]
+data_hd$match_brand<-match_feat[,7]
+
+dist_feat<-select(data_hd,-product_title,
+                  -search_term,-product_description,-brand)
+
+help_data$id_data_hd<-data_hd$id#Keep ids in data_hd
 
 
 #TfIdf features
-#more information about latent semantic analysis
-#here:http://www.ling.ohio-state.edu/~reidy/LSAtutorial.pdf
-tfidf<-function(text,sparse=0.95,n_gram=2){
-        
-        tokenizer<-function(x)NGramTokenizer(x,Weka_control(min=1,max=n_gram))
-        control<-list(tokenize=tokenizer,weighting=function(x)
-                weightTfIdf(x,normalize=T))
-        
-        dtm<-Corpus(VectorSource(text))
-        dtm<-DocumentTermMatrix(dtm,control=control)
-        
-        #Remove terms with at least sparse% of empty
-        dtm<-removeSparseTerms(dtm,sparse=sparse)
-        
-        #Sparse matrix, more efficient
-        dtm<-Matrix(as.matrix(dtm),sparse=T)
-        
-        return(dtm)
-        
-}
+source("./tfidf.R")
 text<-paste(data_hd$search_term,
-            data_hd$product_title,data_hd$product_description)
-
-
-#Distance, match and counting features
-dist_feat<-select(data_hd,-product_uid,-product_title,
-                  -search_term,-product_description)
-
-#Keep ids in data_hd
-help_data$id_data_hd<-data_hd$id
-
-
-#TfIdf features
+            data_hd$product_title,data_hd$brand)
 tfidf_feat<-tfidf(text)
 tfidf_feat@Dimnames$Docs<-help_data$id_data_hd#Keep initial ids
+
+#tfidf score
+dist_feat$tfidf_score<-apply(tfidf_feat,1,sum)
 
 #Get tfidf train and test features
 tfidf_train<-tfidf_feat[rownames(tfidf_feat)%in%help_data$train_id,]
@@ -144,6 +227,5 @@ save(dist_train,file="./proc_files/dist_train")
 save(dist_test,file="./proc_files/dist_test")
 save(tfidf_train,file="./proc_files/tfidf_train")
 save(tfidf_test,file="./proc_files/tfidf_test")
-
 
 
